@@ -3,22 +3,28 @@ version: '3.8'
 services:
   mongodb:
     image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: loopchatdb
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
 
   backend:
-    build: ./backend
+    build: ../chat-app-backend
     ports:
       - "3000:3000"
     environment:
-      - MONGO_URL=mongodb://mongodb:27017/mydb
+      # Use the root credentials created by the mongodb service. For production
+      # create a dedicated app user instead of using root.
+      - MONGO_URL=mongodb://root:password123@mongodb:27017/mydb?authSource=admin
     depends_on:
       - mongodb
 
   frontend:
-    build: ./frontend
+    build: ../chat-app-frontend
     ports:
       - "8080:8080"
     environment:
